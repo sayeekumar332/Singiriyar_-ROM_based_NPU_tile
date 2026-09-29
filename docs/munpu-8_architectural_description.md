@@ -104,10 +104,10 @@ These future capabilities are architectural targets and are **not part of the 15
 
 ```text
                          ┌──────────────────────────────┐
-                         │        HOST / SYSTEM        │
+                         │        HOST / SYSTEM         │
                          │          clk_host            │
                          │                              │
-                         │   Command / Status IF       │
+                         │   Command / Status IF        │
                          └──────────────┬───────────────┘
                                         │
                                 Host → Control CDC
@@ -121,8 +121,8 @@ These future capabilities are architectural targets and are **not part of the 15
                          │                              │
                          │  Command Processor           │
                          │  Microcode Sequencer         │
-                         │  Configuration Registers      │
-                         │  Execution Controller         │
+                         │  Configuration Registers     │
+                         │  Execution Controller        │
                          └──────────────┬───────────────┘
                                         │
                                 Control / Event CDC
@@ -130,7 +130,7 @@ These future capabilities are architectural targets and are **not part of the 15
                                         ▼
                          ┌──────────────────────────────┐
                          │       COMPUTE DOMAIN         │
-                         │        clk_compute            │
+                         │        clk_compute           │
                          │                              │
                          │       Data FIFO              │
                          │          │                   │
@@ -140,7 +140,7 @@ These future capabilities are architectural targets and are **not part of the 15
                          │    │   MAC Array   │         │
                          │    └───────┬───────┘         │
                          │            │                 │
-                         │      INT32 Accumulators     │
+                         │      INT32 Accumulators      │
                          │            │                 │
                          │            ▼                 │
                          │      C Scratchpad            │
@@ -497,10 +497,10 @@ clk_compute
 Responsibilities:
 
 | Domain | Responsibility |
-|---|---|
-| `clk_host` | System command/status interface |
-| `clk_ctrl` | Scheduling and microcode |
-| `clk_compute` | Tensor computation |
+|---------------|---------------------------------|
+| `clk_host`    | System command/status interface |
+| `clk_ctrl`    | Scheduling and microcode        |
+| `clk_compute` | Tensor computation              |
 
 Initial verification frequencies:
 
