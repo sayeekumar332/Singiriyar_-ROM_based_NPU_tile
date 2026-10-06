@@ -53,7 +53,7 @@ The µROM is specifically used as a programmable **data-reuse and execution sche
 
 LLM inference can broadly be viewed as:
 
-1. Prefill (*Processing the entire input prompt*)
+1. Prefill (*Processing the entire tokens od the input prompt*)
 2. Autoregressive decode [*LLM generates the output sequence one token at a time, with each newly generated token depending on the tokens generated previously*]
 
 Version 0 focuses only on decode.
