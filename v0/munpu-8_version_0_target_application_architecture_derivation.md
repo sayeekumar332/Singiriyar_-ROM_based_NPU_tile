@@ -44,7 +44,7 @@ The Version 0 architecture therefore combines:
 - weight-tile-major execution (A weight tile is essentially a small "window" or block of the complete weight matrix ; Suppose the weight matrix has 4096 row elements and 4096 column elements , we dont bring the entire 4096 x 4096 matrix into the local buffer. Instead we select a small number of rows and columns (say **64 rows and 64 columns**) and load into the buffer.
 - cross-request weight reuse
 
-The µROM is specifically used as a programmable **data-reuse and execution scheduler**.
+The **µROM** is specifically used as a programmable **data-reuse and execution scheduler**.
 
 ---
 
