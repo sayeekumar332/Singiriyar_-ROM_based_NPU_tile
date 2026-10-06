@@ -15,8 +15,11 @@ The design isolates one representative kernel:
 
 `Y = XW`
 
-where `X` is a single-token activation vector, `W` is a learned weight matrix, and `Y` is the output vector. This is effectively an INT8 **GEMV** operation.
+where `X` is a single-token activation vector(represented as 1 x K vector), `W` is a learned weight matrix (represented as K x N), and `Y` is the output vector (represented as 1 X N vector). This is effectively an INT8 **GEMV** operation.
 
+                                  So 1 x N = (1 x K) x (K x N)
+
+                                   K = number of elements or features in X ; N = number of elements or features in Y
 Representative workload:
 
 - `K = N = 4096`
