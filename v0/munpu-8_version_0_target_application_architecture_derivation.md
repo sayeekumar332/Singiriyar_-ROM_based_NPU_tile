@@ -5,6 +5,7 @@
 **Project:** µNPU-8  
 **Focus:** µROM-controlled INT8 GEMV accelerator for LLM autoregressive decode
 
+**GEMM - GEneral Matrix-Matrix** multiplication ; **GEMV - GEneral Matrix Vector** multiplication
 ---
 
 ## 1. Executive Summary
