@@ -41,7 +41,7 @@ The Version 0 architecture therefore combines:
 - a **4 KiB candidate local weight buffer**
 - local activation/output storage
 - **µROM + µPC + field decoder**
-- weight-tile-major execution
+- weight-tile-major execution (A weight tile is essentially a small "window" or block of the complete weight matrix ; Suppose the weight matrix has 4096 row elements and 4096 column elements , we dont bring the entire 4096 x 4096 matrix into the local buffer. Instead we select a small number of rows and columns (say **64 rows and 64 columns**) and load into the buffer.
 - cross-request weight reuse
 
 The µROM is specifically used as a programmable **data-reuse and execution scheduler**.
@@ -50,12 +50,14 @@ The µROM is specifically used as a programmable **data-reuse and execution sche
 
 # 2. Target Application
 
-## 2.1 LLM Autoregressive Decode
+## 2.1 LLM Autoregressive Decode - Sequential Across Tokens but massively parallel within each token computation
 
 LLM inference can broadly be viewed as:
 
-1. Prefill (*Processing the entire tokens od the input prompt*)
-2. Autoregressive decode [*LLM generates the output sequence one token at a time, with each newly generated token depending on the tokens generated previously*]
+1. Prefill - **Processing the entire tokens of the input prompt**
+2. Autoregressive decode - **LLM generates the next token value one by one using the tokens that have been already generated**
+
+
 
 Version 0 focuses only on decode.
 
