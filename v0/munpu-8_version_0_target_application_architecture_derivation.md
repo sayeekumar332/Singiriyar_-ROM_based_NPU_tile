@@ -20,6 +20,8 @@ where `X` is a single-token activation vector(represented as 1 x K vector), `W` 
                                   So 1 x N = (1 x K) x (K x N)
 
                                    K = number of elements or features in X ; N = number of elements or features in Y
+
+                                   So each output feature in Y requires K MAC operations to get derived
 Representative workload:
 
 - `K = N = 4096`
