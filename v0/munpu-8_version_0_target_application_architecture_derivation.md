@@ -23,9 +23,9 @@ where `X` is a single-token activation vector(represented as 1 x K vector), `W` 
 Representative workload:
 
 - `K = N = 4096`
-- INT8 activations
-- INT8 weights
-- INT32 accumulation
+- INT8 input activations
+- INT8 input weights
+- INT32 output accumulation
 - `B = 1, 2, 4, 8` concurrent decode requests
 
 The central architectural hypothesis is:
