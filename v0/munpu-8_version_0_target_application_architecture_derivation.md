@@ -1,4 +1,4 @@
-# µNPU-8 — Version 0
+# µNPU-8 — Version_0
 ## Target Application and Architecture Derivation
 
 **Status:** Version 0 — Architecture Baseline  
