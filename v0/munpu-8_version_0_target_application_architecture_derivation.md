@@ -35,14 +35,79 @@ The central architectural hypothesis is:
 
 > During concurrent LLM decode, a weight tile can be loaded once into a small local buffer and reused across multiple active requests, reducing external weight-memory traffic and potentially improving effective compute utilization.
 
+              64×64 Weight Tile
+                     ↓
+              Local Weight Buffer
+                     |
+          +----------+----------+
+          |          |          |
+          ↓          ↓          ↓
+         R0         R1         R2 ...
+          |          |          |
+       Compute    Compute    Compute
+
+So the same window of weights can be reused by several requests before we evict it. That is the **weight-reuse mechanism** at the heart of µNPU-8 V0.       
+
 The Version 0 architecture therefore combines:
 
 - a **4×4 parallel INT8 MAC array**
 - a **4 KiB candidate local weight buffer**
 - local activation/output storage
 - **µROM + µPC + field decoder**
-- weight-tile-major execution (A weight tile is essentially a small "window" or block of the complete weight matrix ; Suppose the weight matrix has 4096 row elements and 4096 column elements , we dont bring the entire 4096 x 4096 matrix into the local buffer. Instead we select a small number of rows and columns (say **64 rows and 64 columns**) and load into the buffer.
+- **weight-tile-major execution** (A **weight tile** is essentially a small "window" or block of the complete weight matrix ; Suppose the weight matrix has 4096 row elements and 4096 column elements , we dont bring the entire 4096 x 4096 matrix into the local buffer. Instead we select a small number of rows and columns (say **64 rows and 64 columns**) and load into the buffer. 
+
+**Weight-tile-major** describes the order in which we organize the computation and it refers to the following : 
+
+**Select a weight tile, load it into the local weight buffer, and use that same tile for all concurrent requests before evicting it and moving to the next weight tile.**
 - cross-request weight reuse
+
+**Cross-request weight reuse means:**
+The same weight data is reused by multiple independent inference requests instead of loading that weight data separately for every request.
+
+For our µNPU-8 example, suppose we have 4 concurrent decode requests:
+
+R0   R1   R2   R3
+
+and a weight tile W0.
+
+**Without cross-request reuse**
+Each request loads W0 separately:
+
+R0 → Load W0 → Compute
+R1 → Load W0 → Compute
+R2 → Load W0 → Compute
+R3 → Load W0 → Compute
+
+So:
+           W0 Loaded Four times
+
+**With cross-request reuse**
+We load W0 once:
+
+             Load W0
+                ↓
+        Local Weight Buffer
+                ↓
+       ┌────────┼────────┐--------|
+       ↓        ↓        ↓        ↓
+      R0       R1       R2       R3
+       ↓        ↓        ↓        ↓
+    Compute  Compute  Compute  Compute
+
+So :
+      W0 loaded once.
+
+**For B concurrent requests**
+Baseline:
+                 **B x W** weight data movement.
+
+With ideal cross-request reuse:
+                **1 x W** weight data movement
+for the same weight tile.
+
+**Suppose B = 4** , then **1 - 1/4 = 75%**
+
+So we can potentially eliminate 75% of the weight traffic for that portion of the workload.
 
 The **µROM** is specifically used as a programmable **data-reuse and execution scheduler**.
 
@@ -58,8 +123,7 @@ LLM inference can broadly be viewed as:
 2. Autoregressive decode - **LLM generates the next token value one by one using its tokens that have been already generated**
 
 
-
-Version 0 focuses only on decode.
+**Version 0 focuses only on decode.**
 
 For a simplified linear layer:
 
@@ -67,17 +131,40 @@ For a simplified linear layer:
 
 with:
 
-`X ∈ R^(1×K)`
+**X ∈ R^(1×K)
 
-`W ∈ R^(K×N)`
+W ∈ R^(K×N)
 
-`Y ∈ R^(1×N)`
+Y ∈ R^(1×N)**
 
 each output is:
 
 `y[j] = sum(k=0..K-1) X[k] * W[k,j]`
 
-For one token this has the computational structure of GEMV.
+**For one token this has the computational structure of GEMV.**
+
+**Meaning of the above :** For each decode token, we take that token's activation vector (X), multiply it by the layer's weight matrix (W), and produce an output activation vector (Y).
+
+**Concept of Decode Token** : 
+A decode request asks the model to generate the next token.
+
+For example, with 4 concurrent requests:
+
+Decode step
+─────────────────────────────
+Request 0 → generates token A
+Request 1 → generates token B
+Request 2 → generates token C
+Request 3 → generates token D
+
+each request has its own activation vector:
+R0 → X₀ ─┐
+R1 → X₁ ─┤
+R2 → X₂ ─┼──→ SAME W → Y₀,Y₁,Y₂,Y₃
+R3 → X₃ ─┘
+
+Then the next decode step happens:
+
 
 ---
 
